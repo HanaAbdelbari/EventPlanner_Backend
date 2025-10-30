@@ -1,12 +1,16 @@
 package main
 
 import (
-    "eventplanner-backend/config"
-    "eventplanner-backend/routes"
+	"EventPlanner_Backend/config"
+	"EventPlanner_Backend/routes"
 )
 
 func main() {
-    config.ConnectDatabase()
-    router := routes.SetupRouter()
-    router.Run(":8080")
+	config.ConnectDB()
+	defer func() {
+		sqlDB, _ := config.DB.DB()
+		sqlDB.Close()
+	}()
+
+	routes.SetupRouter().Run(":8080")
 }
