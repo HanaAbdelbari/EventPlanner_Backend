@@ -1,12 +1,11 @@
+// middleware/auth.go
 package middleware
 
 import (
     "EventPlanner_Backend/utils"
-    "os"
     "strings"
 
     "github.com/gin-gonic/gin"
-    "github.com/golang-jwt/jwt/v5"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -20,12 +19,8 @@ func AuthMiddleware() gin.HandlerFunc {
 
         tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
 
-        claims := &utils.Claims{}
-        token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
-            return []byte(os.Getenv("JWT_SECRET")), nil
-        })
-
-        if err != nil || !token.Valid {
+        claims, err := utils.ValidateToken(tokenStr)
+        if err != nil {
             c.JSON(401, gin.H{"error": "Invalid or expired token"})
             c.Abort()
             return

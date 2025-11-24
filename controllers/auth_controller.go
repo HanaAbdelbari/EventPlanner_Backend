@@ -12,7 +12,7 @@ import (
 type SignupInput struct {
 	Name     string `json:"name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	Password string `json:"password" binding:"required,min=8"`
 }
 
 type LoginInput struct {
@@ -26,7 +26,6 @@ type AuthResponse struct {
 	Token   string `json:"token"`
 }
 
-// POST /signup
 func Signup(c *gin.Context) {
 	var input SignupInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -34,33 +33,42 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	var existing models.User
-	if err := config.DB.Where("email = ?", input.Email).First(&existing).Error; err == nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "Email already registered"})
+	var existingUser models.User
+	if err := config.DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "هذا البريد الإلكتروني مسجل بالفعل"})
 		return
 	}
 
-	hashed, _ := utils.HashPassword(input.Password)
+	hashedPassword, err := utils.HashPassword(input.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "فشل في تشفير كلمة المرور"})
+		return
+	}
+
 	user := models.User{
 		Name:     input.Name,
 		Email:    input.Email,
-		Password: hashed,
+		Password: hashedPassword,
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "فشل في إنشاء الحساب"})
 		return
 	}
 
-	token, _ := utils.GenerateToken(user.ID)
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "فشل في إنشاء التوكن"})
+		return
+	}
+
 	c.JSON(http.StatusCreated, AuthResponse{
-		Message: "Account created",
+		Message: "تم إنشاء الحساب بنجاح",
 		UserID:  user.ID,
 		Token:   token,
 	})
 }
 
-// POST /login
 func Login(c *gin.Context) {
 	var input LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -70,18 +78,23 @@ func Login(c *gin.Context) {
 
 	var user models.User
 	if err := config.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "البريد الإلكتروني أو كلمة المرور غير صحيحة"})
 		return
 	}
 
 	if !utils.CheckPassword(user.Password, input.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "البريد الإلكتروني أو كلمة المرور غير صحيحة"})
 		return
 	}
 
-	token, _ := utils.GenerateToken(user.ID)
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "فشل في إنشاء التوكن"})
+		return
+	}
+
 	c.JSON(http.StatusOK, AuthResponse{
-		Message: "Login successful",
+		Message: "تم تسجيل الدخول بنجاح",
 		UserID:  user.ID,
 		Token:   token,
 	})
