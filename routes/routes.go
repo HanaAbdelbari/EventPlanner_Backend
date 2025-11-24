@@ -1,29 +1,36 @@
 package routes
 
 import (
-	"EventPlanner_Backend/controllers"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"time"
+    "EventPlanner_Backend/controllers"
+    "EventPlanner_Backend/middleware"
+    "github.com/gin-contrib/cors"
+    "github.com/gin-gonic/gin"
+    "time"
 )
 
 func SetupRouter() *gin.Engine {
-	r := gin.Default()
+    r := gin.Default()
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+    r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:5173"},
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+        AllowCredentials: true,
+        MaxAge:           12 * time.Hour,
+    }))
 
-	api := r.Group("/api")
-	{
-		api.POST("/signup", controllers.Signup)
-		api.POST("/login", controllers.Login)
-	}
+    api := r.Group("/api")
+    //public paths don't need jwt and login
+    api.POST("/signup", controllers.Signup)
+    api.POST("/login", controllers.Login)
 
-	return r
+    //protected paths need login
+    protected := api.Group("/")
+    protected.Use(middleware.AuthMiddleware())
+    {
+        protected.POST("/events", controllers.CreateEvent)
+        //loading..........
+    }
+
+    return r
 }
