@@ -29,6 +29,7 @@ func SetupRouter() *gin.Engine {
     protected.Use(middleware.AuthMiddleware())
     {
         protected.POST("/events", controllers.CreateEvent)
+        protected.DELETE("/events/:id", controllers.DeleteEvent)
         //loading..........
     }
 
