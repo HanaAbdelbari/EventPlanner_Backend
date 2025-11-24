@@ -11,6 +11,7 @@ type Event struct {
     Location    string `json:"location" gorm:"not null"`
     Description string `json:"description" gorm:"type:text"`
 
-    OrganizerID uint `json:"organizer_id" gorm:"column:organizer_id;not null"`
-    Organizer   User `json:"organizer" gorm:"foreignKey:OrganizerID;references:id"`
+    OrganizerID uint `json:"organizer_id" gorm:"not null"`
+    Organizer   User `json:"organizer" gorm:"foreignKey:OrganizerID"`
+
 }
