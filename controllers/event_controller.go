@@ -1,4 +1,3 @@
-
 package controllers
 
 import (
@@ -104,6 +103,7 @@ func GetInvitedEvents(c *gin.Context) {
 }
 
 func GetEventByID(c *gin.Context) {
+	currentUserID := c.GetUint("user_id")
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -112,11 +112,30 @@ func GetEventByID(c *gin.Context) {
 	}
 
 	var event models.Event
-	result := config.DB.Preload("Organizer").First(&event, id)
+	result := config.DB.Preload("Organizer").Preload("Attendees.User").First(&event, id)
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "الإيفنت غير موجود"})
 		return
 	}
 
-	c.JSON(http.StatusOK, event)
+	var userRole string
+	if event.OrganizerID == currentUserID {
+		userRole = "organizer"
+	} else {
+
+		for _, attendee := range event.Attendees {
+			if attendee.UserID == currentUserID {
+				userRole = "attendee"
+				break
+			}
+		}
+		if userRole == "" {
+			userRole = "visitor"
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"event":     event,
+		"user_role": userRole,
+	})
 }

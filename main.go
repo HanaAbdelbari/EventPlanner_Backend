@@ -12,7 +12,7 @@ func main() {
 	config.ConnectDB()
 
 	// Auto migrate tables
-	if err := config.DB.AutoMigrate(&models.User{}, &models.Event{}, &models.EventParticipant{}); err != nil {
+	if err := config.DB.AutoMigrate(&models.User{}, &models.Event{}, &models.EventAttendee{}); err != nil {
 		log.Fatalln("AutoMigrate failed:", err)
 	}
 
