@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -12,11 +11,11 @@ func main() {
 	config.ConnectDB()
 
 	// Auto migrate tables
-	if err := config.DB.AutoMigrate(&models.User{}, &models.Event{}, &models.EventParticipant{}); err != nil {
+	if err := config.DB.AutoMigrate(&models.User{}, &models.Event{}, &models.EventAttendee{}); err != nil {
 		log.Fatalln("AutoMigrate failed:", err)
 	}
 
 	r := routes.SetupRouter()
 	log.Println("🚀 Server running on http://localhost:8080")
-	r.Run(":8080")
+	r.Run(":8081")
 }

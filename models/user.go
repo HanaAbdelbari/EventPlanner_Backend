@@ -9,4 +9,5 @@ type User struct {
 	Password string `json:"-" gorm:"not null"`
 
 	Events []Event `json:"events" gorm:"foreignKey:OrganizerID"`
+	AttendedEvents []EventAttendee `json:"attended_events" gorm:"foreignKey:UserID"`
 }
