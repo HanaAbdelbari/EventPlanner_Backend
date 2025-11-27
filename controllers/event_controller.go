@@ -439,3 +439,30 @@ func SearchEvents(c *gin.Context) {
 		},
 	})
 }
+// Get all attendees for an event
+func GetEventAttendees(c *gin.Context) {
+	eventIDStr := c.Param("id")
+
+	eventID, err := strconv.ParseUint(eventIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "رقم الإيفنت غير صالح"})
+		return
+	}
+
+	// Check if event exists
+	var event models.Event
+	if err := config.DB.First(&event, eventID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "الإيفنت غير موجود"})
+		return
+	}
+
+	// Get all attendees
+	var attendees []models.EventAttendee
+	config.DB.Where("event_id = ?", eventID).Preload("User").Find(&attendees)
+
+	c.JSON(http.StatusOK, gin.H{
+		"event_id":  eventID,
+		"attendees": attendees,
+		"total":     len(attendees),
+	})
+}
