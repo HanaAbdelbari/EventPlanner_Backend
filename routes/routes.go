@@ -28,7 +28,8 @@ func SetupRouter() *gin.Engine {
 		protected.POST("/events/:id/invite", controllers.InviteUser)
 		protected.PUT("/events/:id/rsvp", controllers.RespondToInvitation)
 		protected.GET("/events/:id/attendees", controllers.GetEventAttendees)
-	}
+		protected.GET("/events/search", controllers.SearchEvents)
+    }
 
 	return r
 }

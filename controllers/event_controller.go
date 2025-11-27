@@ -260,9 +260,17 @@ func RespondToInvitation(c *gin.Context) {
 		return
 	}
 
-	// Validate status
-	if input.Status != "accepted" && input.Status != "declined" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "الحالة يجب أن تكون accepted أو declined"})
+	// Validate status - Updated to match requirements (Going, Maybe, Not Going)
+	validStatuses := map[string]bool{
+		"going":     true,
+		"maybe":     true,
+		"not_going": true,
+	}
+
+	if !validStatuses[input.Status] {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "الحالة يجب أن تكون: going, maybe, أو not_going",
+		})
 		return
 	}
 
@@ -280,41 +288,154 @@ func RespondToInvitation(c *gin.Context) {
 		return
 	}
 
-	message := "تم قبول الدعوة بنجاح"
-	if input.Status == "declined" {
-		message = "تم رفض الدعوة"
+	// Set appropriate message
+	messages := map[string]string{
+		"going":     "تم تأكيد الحضور بنجاح",
+		"maybe":     "تم تحديث حالتك إلى 'ربما'",
+		"not_going": "تم تأكيد عدم الحضور",
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":    message,
+		"message":    messages[input.Status],
 		"invitation": invitation,
 	})
 }
+func SearchEvents(c *gin.Context) {
+	userID := c.GetUint("user_id")
 
-// Get all attendees for an event
-func GetEventAttendees(c *gin.Context) {
-	eventIDStr := c.Param("id")
+	// Get query parameters
+	keyword := c.Query("keyword")      // للبحث في title و description
+	dateFrom := c.Query("date_from")   // تاريخ البداية (YYYY-MM-DD)
+	dateTo := c.Query("date_to")       // تاريخ النهاية (YYYY-MM-DD)
+	role := c.Query("role")            // organizer, attendee, all (default: all)
 
-	eventID, err := strconv.ParseUint(eventIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "رقم الإيفنت غير صالح"})
+	// Build query
+	query := config.DB.Model(&models.Event{}).Preload("Organizer")
+
+	// Filter by keyword (search in title and description)
+	if keyword != "" {
+		searchPattern := "%" + keyword + "%"
+		query = query.Where("title LIKE ? OR description LIKE ?", searchPattern, searchPattern)
+	}
+
+	// Filter by date range
+	if dateFrom != "" {
+		location, _ := time.LoadLocation("UTC")
+		startDate, err := time.ParseInLocation("2006-01-02", dateFrom, location)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "صيغة تاريخ البداية غير صحيحة (استخدم: YYYY-MM-DD)"})
+			return
+		}
+		query = query.Where("start_time >= ?", startDate)
+	}
+
+	if dateTo != "" {
+		location, _ := time.LoadLocation("UTC")
+		endDate, err := time.ParseInLocation("2006-01-02", dateTo, location)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "صيغة تاريخ النهاية غير صحيحة (استخدم: YYYY-MM-DD)"})
+			return
+		}
+		// Add 24 hours to include the entire end date
+		endDate = endDate.Add(24 * time.Hour)
+		query = query.Where("start_time < ?", endDate)
+	}
+
+	// Filter by user role
+	var events []models.Event
+
+	switch role {
+	case "organizer":
+		// Get only events where user is the organizer
+		query = query.Where("organizer_id = ?", userID)
+
+	case "attendee":
+		// Get only events where user is invited/attending
+		var attendees []models.EventAttendee
+		config.DB.Where("user_id = ?", userID).Find(&attendees)
+
+		var eventIDs []uint
+		for _, attendee := range attendees {
+			eventIDs = append(eventIDs, attendee.EventID)
+		}
+
+		if len(eventIDs) > 0 {
+			query = query.Where("id IN ?", eventIDs)
+		} else {
+			// No events found
+			c.JSON(http.StatusOK, gin.H{
+				"events": []models.Event{},
+				"total":  0,
+				"filters": gin.H{
+					"keyword":   keyword,
+					"date_from": dateFrom,
+					"date_to":   dateTo,
+					"role":      role,
+				},
+			})
+			return
+		}
+
+	default: // "all" or empty
+		// Get events where user is either organizer or attendee
+		var attendees []models.EventAttendee
+		config.DB.Where("user_id = ?", userID).Find(&attendees)
+
+		var eventIDs []uint
+		for _, attendee := range attendees {
+			eventIDs = append(eventIDs, attendee.EventID)
+		}
+
+		// Get events where user is organizer OR attendee
+		if len(eventIDs) > 0 {
+			query = query.Where("organizer_id = ? OR id IN ?", userID, eventIDs)
+		} else {
+			query = query.Where("organizer_id = ?", userID)
+		}
+	}
+
+	// Execute query
+	if err := query.Order("start_time ASC").Find(&events).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "فشل في البحث عن الأحداث"})
 		return
 	}
 
-	// Check if event exists
-	var event models.Event
-	if err := config.DB.First(&event, eventID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "الإيفنت غير موجود"})
-		return
+	// Add user role to each event
+	type EventWithRole struct {
+		models.Event
+		UserRole string `json:"user_role"`
 	}
 
-	// Get all attendees
-	var attendees []models.EventAttendee
-	config.DB.Where("event_id = ?", eventID).Preload("User").Find(&attendees)
+	var eventsWithRoles []EventWithRole
+	for _, event := range events {
+		userRole := "visitor"
+
+		if event.OrganizerID == userID {
+			userRole = "organizer"
+		} else {
+			config.DB.Preload("User").Where("event_id = ?", event.ID).Find(&event.Attendees)
+			for _, attendee := range event.Attendees {
+				if attendee.UserID == userID {
+					userRole = "attendee"
+					break
+				}
+			}
+		}
+
+		eventsWithRoles = append(eventsWithRoles, EventWithRole{
+			Event:    event,
+			UserRole: userRole,
+		})
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"event_id":  eventID,
-		"attendees": attendees,
-		"total":     len(attendees),
+		"events": eventsWithRoles,
+		"total":  len(eventsWithRoles),
+		"filters": gin.H{
+			"keyword":   keyword,
+			"date_from": dateFrom,
+			"date_to":   dateTo,
+			"role":      role,
+		},
 	})
 }
