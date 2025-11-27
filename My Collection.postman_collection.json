@@ -1,0 +1,314 @@
+{
+	"info": {
+		"_postman_id": "84c1d527-6441-49fa-8d58-22d697efa7f4",
+		"name": "My Collection",
+		"description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "50405123",
+		"_collection_link": "https://joint-operations-observer-13705378-3292905.postman.co/workspace/STUD-20226017's-Workspace~079c2ebd-bf7f-4349-8f6c-a4028a97b1ce/collection/50405123-84c1d527-6441-49fa-8d58-22d697efa7f4?action=share&source=collection_link&creator=50405123"
+	},
+	"item": [
+		{
+			"name": "signin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Menna\",\r\n  \"email\": \"Menna@example.com\",\r\n  \"password\": \"password123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/signup",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"signup"
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
+			"name": "Post data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": ""
+				},
+				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+			},
+			"response": []
+		},
+		{
+			"name": "invite someone to event",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Request",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE3NjQzNDAwNjEsImlhdCI6MTc2NDI1MzY2MX0.hnvoS7y6tv5kLFi4tyAe0njMlTZ5HZiMiDct9Q1KJLc",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Tech Conference\",\r\n  \"date\": \"2025-12-30\",\r\n  \"time\": \"10:00\",\r\n  \"location\": \"Cairo\",\r\n  \"description\": \"Annual tech conference\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/events",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get events created",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1LCJleHAiOjE3NjQzMzY4NjMsImlhdCI6MTc2NDI1MDQ2M30.oZfIN4cbQ1EsXXC8jWp_iOFqKgl_mPoEQ8oPR4kQ7I0",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/events/organized",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"events",
+						"organized"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Invited Events as unique user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo2LCJleHAiOjE3NjQzMzk5ODcsImlhdCI6MTc2NDI1MzU4N30.ckNIQKLIvvRwX38XxVtwNFPkHg2rD45jIpohoEP5TFU",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/events/invited",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"events",
+						"invited"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get specific event details",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1LCJleHAiOjE3NjQzMzY4NjMsImlhdCI6MTc2NDI1MDQ2M30.oZfIN4cbQ1EsXXC8jWp_iOFqKgl_mPoEQ8oPR4kQ7I0",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/events/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"events",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete unique event",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo1LCJleHAiOjE3NjQzMzY4NjMsImlhdCI6MTc2NDI1MDQ2M30.oZfIN4cbQ1EsXXC8jWp_iOFqKgl_mPoEQ8oPR4kQ7I0",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/events/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"events",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accepts the Invitation",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo2LCJleHAiOjE3NjQzMzk5ODcsImlhdCI6MTc2NDI1MzU4N30.ckNIQKLIvvRwX38XxVtwNFPkHg2rD45jIpohoEP5TFU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"status\": \"accepted\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/events/2/rsvp",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"events",
+						"2",
+						"rsvp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Event Attendees",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE3NjQzNDAwNjEsImlhdCI6MTc2NDI1MzY2MX0.hnvoS7y6tv5kLFi4tyAe0njMlTZ5HZiMiDct9Q1KJLc",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/events/2/attendees",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"events",
+						"2",
+						"attendees"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
