@@ -38,12 +38,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8081/api/signup",
+					"raw": "http://localhost:8080/api/signup",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8080",
 					"path": [
 						"api",
 						"signup"
@@ -123,12 +123,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8081/api/events",
+					"raw": "http://localhost:8080/api/events",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8088",
 					"path": [
 						"api",
 						"events"
@@ -149,12 +149,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8081/api/events/organized",
+					"raw": "http://localhost:8080/api/events/organized",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8080",
 					"path": [
 						"api",
 						"events",
@@ -176,12 +176,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8081/api/events/invited",
+					"raw": "http://localhost:8080/api/events/invited",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8080",
 					"path": [
 						"api",
 						"events",
@@ -203,12 +203,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8081/api/events/1",
+					"raw": "http://localhost:8080/api/events/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8080",
 					"path": [
 						"api",
 						"events",
@@ -230,12 +230,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8081/api/events/1",
+					"raw": "http://localhost:8080/api/events/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8080",
 					"path": [
 						"api",
 						"events",
@@ -266,12 +266,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8081/api/events/2/rsvp",
+					"raw": "http://localhost:8080/api/events/2/rsvp",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8080",
 					"path": [
 						"api",
 						"events",
@@ -294,12 +294,12 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8081/api/events/2/attendees",
+					"raw": "http://localhost:8080/api/events/2/attendees",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8081",
+					"port": "8080",
 					"path": [
 						"api",
 						"events",
