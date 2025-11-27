@@ -1,5 +1,5 @@
 -- Create database
-CREATE DATABASE eventplanner;
+CREATE DATABASE eventplanner_db;
 
 -- Create user
 CREATE USER 'appuser'@'localhost' IDENTIFIED BY 'apppass';
@@ -9,6 +9,6 @@ GRANT ALL PRIVILEGES ON eventplanner.* TO 'appuser'@'localhost';
 FLUSH PRIVILEGES;
 
 -- Use database
-USE eventplanner;
+USE eventplanner_db;
 
 -- Create users table (GORM will auto-migrate later)

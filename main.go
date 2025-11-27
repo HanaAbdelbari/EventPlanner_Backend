@@ -16,6 +16,6 @@ func main() {
 	}
 
 	r := routes.SetupRouter()
-	log.Println("🚀 Server running on http://localhost:8080")
-	r.Run(":8081")
+	log.Println("Server running on http://localhost:8080")
+	r.Run(":8080")
 }
