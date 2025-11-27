@@ -4,6 +4,9 @@ import (
 	"EventPlanner_Backend/config"
 	"EventPlanner_Backend/models"
 	"EventPlanner_Backend/utils"
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,16 +26,43 @@ type LoginInput struct {
 type AuthResponse struct {
 	Message string `json:"message"`
 	UserID  uint   `json:"user_id"`
+	Name    string `json:"name"`
+	Email   string `json:"email"`
 	Token   string `json:"token"`
 }
 
 func Signup(c *gin.Context) {
 	var input SignupInput
+
+	// ADD THIS - Log the raw request body
+	body, _ := c.GetRawData()
+	fmt.Printf("=== RAW REQUEST BODY ===\n")
+	fmt.Printf("%s\n", string(body))
+	fmt.Printf("========================\n")
+
+	// Reset the body so Gin can bind it
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		// ADD DETAILED ERROR LOGGING
+		fmt.Printf("=== VALIDATION ERROR ===\n")
+		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Received data - Name: '%s', Email: '%s', Password length: %d\n",
+			input.Name, input.Email, len(input.Password))
+		fmt.Printf("========================\n")
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Validation failed",
+			"details": err.Error(),
+		})
 		return
 	}
 
+	fmt.Printf("=== VALIDATION PASSED ===\n")
+	fmt.Printf("Name: '%s', Email: '%s', Password: '%s'\n", input.Name, input.Email, input.Password)
+	fmt.Printf("========================\n")
+
+	// Rest of your existing signup logic...
 	var existingUser models.User
 	if err := config.DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "هذا البريد الإلكتروني مسجل بالفعل"})
@@ -65,6 +95,8 @@ func Signup(c *gin.Context) {
 	c.JSON(http.StatusCreated, AuthResponse{
 		Message: "تم إنشاء الحساب بنجاح",
 		UserID:  user.ID,
+		Name:    user.Name,
+		Email:   user.Email,
 		Token:   token,
 	})
 }
@@ -96,6 +128,8 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, AuthResponse{
 		Message: "تم تسجيل الدخول بنجاح",
 		UserID:  user.ID,
+		Name:    user.Name,
+		Email:   user.Email,
 		Token:   token,
 	})
 }
