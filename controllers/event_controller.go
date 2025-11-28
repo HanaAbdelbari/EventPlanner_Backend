@@ -17,7 +17,7 @@ type CreateEventInput struct {
 	Time        string   `json:"time" binding:"required"`
 	Location    string   `json:"location" binding:"required"`
 	Description string   `json:"description"`
-	Invitees    []string `json:"invitees"` // ADD THIS LINE
+	Invitees    []string `json:"invitees"`
 }
 
 func CreateEvent(c *gin.Context) {
@@ -52,7 +52,7 @@ func CreateEvent(c *gin.Context) {
 		return
 	}
 
-	// ADD THIS: Invite users if provided
+	// Invite users if provided
 	if len(input.Invitees) > 0 {
 		for _, email := range input.Invitees {
 			email = strings.TrimSpace(email)
@@ -254,7 +254,7 @@ func GetAllMyEvents(c *gin.Context) {
 	c.JSON(http.StatusOK, formattedEvents)
 }
 
-// Invite a user to an event
+
 func InviteUser(c *gin.Context) {
 	organizerID := c.GetUint("user_id")
 
@@ -363,87 +363,6 @@ func RespondToInvitation(c *gin.Context) {
 	})
 }
 
-func SearchEvents(c *gin.Context) {
-	userID := c.GetUint("user_id")
-	keyword := c.Query("keyword")
-	date := c.Query("date")
-	role := c.Query("role")
-
-	var formattedEvents []map[string]interface{}
-
-	// Search in organized events
-	if role == "" || role == "organizer" {
-		var organizedEvents []models.Event
-		query := config.DB.Preload("Organizer").Where("organizer_id = ?", userID)
-
-		if keyword != "" {
-			query = query.Where("title LIKE ? OR description LIKE ? OR location LIKE ?",
-				"%"+keyword+"%", "%"+keyword+"%", "%"+keyword+"%")
-		}
-
-		if date != "" {
-			query = query.Where("DATE(start_time) = ?", date)
-		}
-
-		query.Find(&organizedEvents)
-
-		for _, event := range organizedEvents {
-			formattedEvents = append(formattedEvents, map[string]interface{}{
-				"id":           event.ID,
-				"title":        event.Title,
-				"description":  event.Description,
-				"date":         event.StartTime.Format("2006-01-02"),
-				"time":         event.StartTime.Format("15:04"),
-				"location":     event.Location,
-				"organizer_id": event.OrganizerID,
-				"created_at":   event.CreatedAt,
-				"role":         "organizer",
-				"status":       "going",
-			})
-		}
-	}
-
-	// Search in invited events
-	if role == "" || role == "attendee" {
-		var attendees []models.EventAttendee
-		query := config.DB.Where("user_id = ?", userID).Preload("Event").Preload("Event.Organizer")
-		query.Find(&attendees)
-
-		for _, attendee := range attendees {
-			event := attendee.Event
-
-			if keyword != "" {
-				if !strings.Contains(strings.ToLower(event.Title), strings.ToLower(keyword)) &&
-					!strings.Contains(strings.ToLower(event.Description), strings.ToLower(keyword)) &&
-					!strings.Contains(strings.ToLower(event.Location), strings.ToLower(keyword)) {
-					continue
-				}
-			}
-
-			if date != "" && event.StartTime.Format("2006-01-02") != date {
-				continue
-			}
-
-			formattedEvents = append(formattedEvents, map[string]interface{}{
-				"id":           event.ID,
-				"title":        event.Title,
-				"description":  event.Description,
-				"date":         event.StartTime.Format("2006-01-02"),
-				"time":         event.StartTime.Format("15:04"),
-				"location":     event.Location,
-				"organizer_id": event.OrganizerID,
-				"created_at":   event.CreatedAt,
-				"role":         "attendee",
-				"status":       attendee.Status,
-			})
-		}
-	}
-
-	// Return flat array
-	c.JSON(http.StatusOK, formattedEvents)
-}
-
-// Get all attendees for an event
 func GetEventAttendees(c *gin.Context) {
 	eventIDStr := c.Param("id")
 
@@ -479,6 +398,126 @@ func GetEventAttendees(c *gin.Context) {
 		})
 	}
 
-	// Return flat array instead of nested object
 	c.JSON(http.StatusOK, formattedAttendees)
+}
+
+
+func SearchEvents(c *gin.Context) {
+    userID := c.GetUint("user_id")
+
+    keyword := strings.TrimSpace(c.Query("keyword"))
+    startDateStr := c.Query("start_date")
+    endDateStr := c.Query("end_date")
+    roleParam := strings.ToLower(strings.TrimSpace(c.Query("role")))
+    status := strings.ToLower(strings.TrimSpace(c.Query("status")))
+
+    var results []map[string]interface{}
+    seen := make(map[uint]bool)
+
+    // توقيت مصر
+    loc, _ := time.LoadLocation("Africa/Cairo")
+
+    var startTime, endTime time.Time
+
+    if startDateStr != "" {
+        t, err := time.ParseInLocation("2006-01-02", startDateStr, loc)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid start_date"})
+            return
+        }
+        startTime = t.In(time.UTC)
+    }
+
+    if endDateStr != "" {
+        t, err := time.ParseInLocation("2006-01-02", endDateStr, loc)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid end_date"})
+            return
+        }
+        // نهاية اليوم بتوقيت مصر (23:59:59) → نحوله لـ UTC
+        endOfDay := time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 999999999, loc)
+        endTime = endOfDay.In(time.UTC)
+    }
+
+    includeOrg := roleParam == "" || roleParam == "organizer" || roleParam == "all"
+    includeAtt := roleParam == "" || roleParam == "attendee" || roleParam == "all"
+    if status != "" && status != "going" {
+        includeOrg = false
+    }
+
+    // Organized Events
+    if includeOrg {
+        q := config.DB.Preload("Organizer").Where("organizer_id = ?", userID)
+
+        if keyword != "" {
+            q = q.Where("title LIKE ? OR description LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+        }
+        if !startTime.IsZero() {
+            q = q.Where("start_time >= ?", startTime)
+        }
+        if !endTime.IsZero() {
+            q = q.Where("start_time <= ?", endTime)
+        }
+
+        var events []models.Event
+        q.Find(&events)
+        for _, e := range events {
+            if seen[e.ID] { continue }
+            seen[e.ID] = true
+            results = append(results, map[string]interface{}{
+                "id":           e.ID,
+                "title":        e.Title,
+                "description":  e.Description,
+                "date":         e.StartTime.In(loc).Format("2006-01-02"),
+                "time":         e.StartTime.In(loc).Format("15:04"),
+                "location":     e.Location,
+                "organizer_id": e.OrganizerID,
+                "created_at":   e.CreatedAt,
+                "role":         "organizer",
+                "status":       "going",
+            })
+        }
+    }
+
+    // Attended Events
+    if includeAtt {
+        q := config.DB.Preload("Event").Preload("Event.Organizer").
+            Joins("JOIN events ON events.id = event_attendees.event_id").
+            Where("event_attendees.user_id = ?", userID)
+
+        if keyword != "" {
+            q = q.Where("events.title LIKE ? OR events.description LIKE ?", "%"+keyword+"%", "%"+keyword+"%")
+        }
+        if !startTime.IsZero() {
+            q = q.Where("events.start_time >= ?", startTime)
+        }
+        if !endTime.IsZero() {
+            q = q.Where("events.start_time <= ?", endTime)
+        }
+        if status != "" {
+            q = q.Where("event_attendees.status = ?", status)
+        }
+
+        var attendees []models.EventAttendee
+        q.Find(&attendees)
+        for _, a := range attendees {
+            if seen[a.EventID] { continue }
+            seen[a.EventID] = true
+            eventTime := a.Event.StartTime.In(loc)
+            results = append(results, map[string]interface{}{
+                "id":           a.Event.ID,
+                "title":        a.Event.Title,
+                "description":  a.Event.Description,
+                "date":         eventTime.Format("2006-01-02"),
+                "time":         eventTime.Format("15:04"),
+                "location":     a.Event.Location,
+                "organizer_id": a.Event.OrganizerID,
+                "created_at":   a.Event.CreatedAt,
+                "role":         "attendee",
+                "status":       a.Status,
+            })
+        }
+    }
+
+    c.JSON(http.StatusOK, results)
 }
