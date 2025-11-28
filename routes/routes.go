@@ -11,7 +11,6 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	// CORS Configuration - More specific
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -41,16 +40,16 @@ func SetupRouter() *gin.Engine {
 		// Events - FIXED ROUTES
 		protected.POST("/events", controllers.CreateEvent)
 		protected.DELETE("/events/:id", controllers.DeleteEvent)
-		protected.GET("/events/my", controllers.GetMyEvents) // Changed from /organized
+		protected.GET("/events/my", controllers.GetMyEvents)
 		protected.GET("/events/invited", controllers.GetInvitedEvents)
-		protected.GET("/events/all", controllers.GetAllMyEvents) // ADDED - for dashboard
+		protected.GET("/events/all", controllers.GetAllMyEvents)
 		protected.GET("/events/search", controllers.SearchEvents)
 		protected.GET("/events/:id", controllers.GetEventByID)
 		protected.GET("/events/:id/attendees", controllers.GetEventAttendees)
 
 		// Invitations - FIXED ROUTES
-		protected.POST("/events/invite", controllers.InviteUser)           // Changed from /:id/invite
-		protected.PUT("/events/response", controllers.RespondToInvitation) // Changed from /:id/rsvp
+		protected.POST("/events/invite", controllers.InviteUser)
+		protected.PUT("/events/response", controllers.RespondToInvitation)
 	}
 
 	return r
