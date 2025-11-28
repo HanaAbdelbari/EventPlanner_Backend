@@ -24,7 +24,7 @@ type EventAttendee struct {
 	EventID   uint           `json:"event_id" gorm:"not null"`
 	UserID    uint           `json:"user_id" gorm:"not null"`
 	Status    string         `json:"status" gorm:"default:'pending'"`           // pending, going, maybe, not_going
-	Event     Event          `json:"event,omitempty" gorm:"foreignKey:EventID"` // ADD THIS LINE
+	Event     Event          `json:"event,omitempty" gorm:"foreignKey:EventID"`
 	User      User           `json:"user,omitempty" gorm:"foreignKey:UserID"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

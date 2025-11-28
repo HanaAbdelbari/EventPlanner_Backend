@@ -34,7 +34,6 @@ type AuthResponse struct {
 func Signup(c *gin.Context) {
 	var input SignupInput
 
-	// ADD THIS - Log the raw request body
 	body, _ := c.GetRawData()
 	fmt.Printf("=== RAW REQUEST BODY ===\n")
 	fmt.Printf("%s\n", string(body))
@@ -62,7 +61,7 @@ func Signup(c *gin.Context) {
 	fmt.Printf("Name: '%s', Email: '%s', Password: '%s'\n", input.Name, input.Email, input.Password)
 	fmt.Printf("========================\n")
 
-	// Rest of your existing signup logic...
+
 	var existingUser models.User
 	if err := config.DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "هذا البريد الإلكتروني مسجل بالفعل"})
