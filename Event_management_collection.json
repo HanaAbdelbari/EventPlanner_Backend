@@ -1,826 +1,927 @@
 {
-  "info": {
-    "_postman_id": "84c1d527-6441-49fa-8d58-22d697efa7f4",
-    "name": "Event Management System API",
-    "description": "Complete API collection for Event Management System with User Management, Event Management, RSVP, and Advanced Search",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "50405123"
-  },
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{auth_token}}",
-        "type": "string"
-      }
-    ]
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:8080/api",
-      "type": "string"
-    },
-    {
-      "key": "auth_token",
-      "value": "",
-      "type": "string"
-    }
-  ],
-  "item": [
-    {
-      "name": "Authentication",
-      "item": [
-        {
-          "name": "Sign Up",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 or 201\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has token\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('token');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Menna\",\n  \"email\": \"Menna@example.com\",\n  \"password\": \"password123\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/signup",
-              "host": ["{{base_url}}"],
-              "path": ["signup"]
-            },
-            "description": "Create a new user account with name, email, and password"
-          },
-          "response": []
-        },
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has token\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('token');",
-                  "    ",
-                  "    // Save token to environment variable",
-                  "    pm.environment.set('auth_token', jsonData.token);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"Menna@example.com\",\n  \"password\": \"password123\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/login",
-              "host": ["{{base_url}}"],
-              "path": ["login"]
-            },
-            "description": "Login with email and password to receive JWT token"
-          },
-          "response": []
-        }
-      ],
-      "description": "User authentication endpoints for signup and login"
-    },
-    {
-      "name": "Event Management",
-      "item": [
-        {
-          "name": "Create Event",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Event created successfully\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Tech Conference\",\n  \"date\": \"2025-12-30\",\n  \"time\": \"10:00\",\n  \"location\": \"Cairo\",\n  \"description\": \"Annual tech conference\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/events",
-              "host": ["{{base_url}}"],
-              "path": ["events"]
-            },
-            "description": "Create a new event (organizer role only)"
-          },
-          "response": []
-        },
-        {
-          "name": "Get All Events",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events",
-              "host": ["{{base_url}}"],
-              "path": ["events"]
-            },
-            "description": "Get all available events"
-          },
-          "response": []
-        },
-        {
-          "name": "Get Organized Events",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/organized",
-              "host": ["{{base_url}}"],
-              "path": ["events", "organized"]
-            },
-            "description": "Get all events created by the logged-in user (organizer role)"
-          },
-          "response": []
-        },
-        {
-          "name": "Get Invited Events",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/invited",
-              "host": ["{{base_url}}"],
-              "path": ["events", "invited"]
-            },
-            "description": "Get all events the logged-in user is invited to (attendee role)"
-          },
-          "response": []
-        },
-        {
-          "name": "Get Specific Event",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Event has required fields\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('title');",
-                  "    pm.expect(jsonData).to.have.property('date');",
-                  "    pm.expect(jsonData).to.have.property('location');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/:eventId",
-              "host": ["{{base_url}}"],
-              "path": ["events", ":eventId"],
-              "variable": [
-                {
-                  "key": "eventId",
-                  "value": "1",
-                  "description": "Event ID"
-                }
-              ]
-            },
-            "description": "Get details of a specific event by ID"
-          },
-          "response": []
-        },
-        {
-          "name": "Update Event",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated Tech Conference\",\n  \"date\": \"2025-12-31\",\n  \"time\": \"11:00\",\n  \"location\": \"Alexandria\",\n  \"description\": \"Updated annual tech conference\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/events/:eventId",
-              "host": ["{{base_url}}"],
-              "path": ["events", ":eventId"],
-              "variable": [
-                {
-                  "key": "eventId",
-                  "value": "1",
-                  "description": "Event ID to update"
-                }
-              ]
-            },
-            "description": "Update an existing event (organizer only)"
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Event",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 or 204\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/:eventId",
-              "host": ["{{base_url}}"],
-              "path": ["events", ":eventId"],
-              "variable": [
-                {
-                  "key": "eventId",
-                  "value": "1",
-                  "description": "Event ID to delete"
-                }
-              ]
-            },
-            "description": "Delete an event (organizer only)"
-          },
-          "response": []
-        },
-        {
-          "name": "Invite User to Event",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200 or 201\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"invitee@example.com\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/events/:eventId/invite",
-              "host": ["{{base_url}}"],
-              "path": ["events", ":eventId", "invite"],
-              "variable": [
-                {
-                  "key": "eventId",
-                  "value": "2",
-                  "description": "Event ID to invite user to"
-                }
-              ]
-            },
-            "description": "Invite a user to an event by their email (organizer only)"
-          },
-          "response": []
-        }
-      ],
-      "description": "Event management endpoints for CRUD operations"
-    },
-    {
-      "name": "RSVP & Attendees",
-      "item": [
-        {
-          "name": "RSVP to Event",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"accepted\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/events/:eventId/rsvp",
-              "host": ["{{base_url}}"],
-              "path": ["events", ":eventId", "rsvp"],
-              "variable": [
-                {
-                  "key": "eventId",
-                  "value": "2",
-                  "description": "Event ID"
-                }
-              ]
-            },
-            "description": "Update RSVP status for an event. Status values: 'accepted', 'maybe', 'declined'"
-          },
-          "response": []
-        },
-        {
-          "name": "Get Event Attendees",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response is array\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/:eventId/attendees",
-              "host": ["{{base_url}}"],
-              "path": ["events", ":eventId", "attendees"],
-              "variable": [
-                {
-                  "key": "eventId",
-                  "value": "2",
-                  "description": "Event ID"
-                }
-              ]
-            },
-            "description": "Get list of all attendees and their RSVP status for an event (organizer only)"
-          },
-          "response": []
-        }
-      ],
-      "description": "RSVP and attendee management endpoints"
-    },
-    {
-      "name": "Search & Filter",
-      "item": [
-        {
-          "name": "Advanced Search Events",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test(\"Response is array\", function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.be.an('array');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/search?keyword=conference&startDate=2025-01-01&endDate=2025-12-31&role=organizer",
-              "host": ["{{base_url}}"],
-              "path": ["events", "search"],
-              "query": [
-                {
-                  "key": "keyword",
-                  "value": "conference",
-                  "description": "Search in event titles and descriptions"
-                },
-                {
-                  "key": "startDate",
-                  "value": "2025-01-01",
-                  "description": "Filter events from this date (YYYY-MM-DD)"
-                },
-                {
-                  "key": "endDate",
-                  "value": "2025-12-31",
-                  "description": "Filter events until this date (YYYY-MM-DD)"
-                },
-                {
-                  "key": "role",
-                  "value": "organizer",
-                  "description": "Filter by user role: 'organizer' or 'attendee'"
-                },
-                {
-                  "key": "status",
-                  "value": "accepted",
-                  "description": "Filter by RSVP status: 'accepted', 'maybe', 'declined' (for attendees only)",
-                  "disabled": true
-                }
-              ]
-            },
-            "description": "Advanced search and filter events by keywords, dates, and user roles"
-          },
-          "response": []
-        },
-        {
-          "name": "Search by Keyword Only",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/search?keyword=tech",
-              "host": ["{{base_url}}"],
-              "path": ["events", "search"],
-              "query": [
-                {
-                  "key": "keyword",
-                  "value": "tech",
-                  "description": "Search keyword"
-                }
-              ]
-            },
-            "description": "Search events by keyword only"
-          },
-          "response": []
-        },
-        {
-          "name": "Search by Date Range",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/search?startDate=2025-12-01&endDate=2025-12-31",
-              "host": ["{{base_url}}"],
-              "path": ["events", "search"],
-              "query": [
-                {
-                  "key": "startDate",
-                  "value": "2025-12-01"
-                },
-                {
-                  "key": "endDate",
-                  "value": "2025-12-31"
-                }
-              ]
-            },
-            "description": "Filter events by date range"
-          },
-          "response": []
-        },
-        {
-          "name": "Search by Role (Organizer)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/search?role=organizer",
-              "host": ["{{base_url}}"],
-              "path": ["events", "search"],
-              "query": [
-                {
-                  "key": "role",
-                  "value": "organizer",
-                  "description": "organizer or attendee"
-                }
-              ]
-            },
-            "description": "Filter events where user is organizer"
-          },
-          "response": []
-        },
-        {
-          "name": "Search by Role & Status (Attendee)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Status code is 200\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{auth_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/events/search?role=attendee&status=accepted",
-              "host": ["{{base_url}}"],
-              "path": ["events", "search"],
-              "query": [
-                {
-                  "key": "role",
-                  "value": "attendee"
-                },
-                {
-                  "key": "status",
-                  "value": "accepted",
-                  "description": "accepted, maybe, or declined"
-                }
-              ]
-            },
-            "description": "Filter events where user is attendee with specific RSVP status"
-          },
-          "response": []
-        }
-      ],
-      "description": "Advanced search and filtering endpoints for events"
-    }
-  ]
+	"info": {
+		"_postman_id": "ae44b7d8-b924-4a86-8ee9-645bd950c47f",
+		"name": "Event Management System API",
+		"description": "Complete API collection for Event Management System with User Management, Event Management, RSVP, and Advanced Search",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40574077",
+		"_collection_link": "https://review-app-0410.postman.co/workspace/review-app~b6adb7c4-e738-4d67-b042-a322fc3b37a4/collection/40574077-ae44b7d8-b924-4a86-8ee9-645bd950c47f?action=share&source=collection_link&creator=40574077"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Sign Up",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"pm.test(\"Response has token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Menna\",\n  \"email\": \"Menna@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						},
+						"description": "Create a new user account with name, email, and password"
+					},
+					"response": []
+				},
+				{
+					"name": "Sign Up(another person)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									"",
+									"pm.test(\"Response has token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Hana\",\n  \"email\": \"Hana@example.com\",\n  \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						},
+						"description": "Create a new user account with name, email, and password"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token');",
+									"    ",
+									"    // Save token to environment variable",
+									"    pm.environment.set('auth_token', jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"Menna@example.com\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						},
+						"description": "Login with email and password to receive JWT token"
+					},
+					"response": []
+				},
+				{
+					"name": "Login (another person)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('token');",
+									"    ",
+									"    // Save token to environment variable",
+									"    pm.environment.set('auth_token', jsonData.token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"Hana@example.com\",\n  \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						},
+						"description": "Login with email and password to receive JWT token"
+					},
+					"response": []
+				}
+			],
+			"description": "User authentication endpoints for signup and login"
+		},
+		{
+			"name": "Event Management",
+			"item": [
+				{
+					"name": "Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Event created successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('id');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Tech Conference\",\n  \"date\": \"2025-12-30\",\n  \"time\": \"10:00\",\n  \"location\": \"Cairo\",\n  \"description\": \"Annual tech conference\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events"
+							]
+						},
+						"description": "Create a new event (organizer role only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/events/all",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"events",
+								"all"
+							]
+						},
+						"description": "Get all available events"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Organized Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/my",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"my"
+							]
+						},
+						"description": "Get all events created by the logged-in user (organizer role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Invited Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/invited",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"invited"
+							]
+						},
+						"description": "Get all events the logged-in user is invited to (attendee role)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Event has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('title');",
+									"    pm.expect(jsonData).to.have.property('date');",
+									"    pm.expect(jsonData).to.have.property('location');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/:eventId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								":eventId"
+							],
+							"variable": [
+								{
+									"key": "eventId",
+									"value": "1",
+									"description": "Event ID"
+								}
+							]
+						},
+						"description": "Get details of a specific event by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/:eventId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								":eventId"
+							],
+							"variable": [
+								{
+									"key": "eventId",
+									"value": "1",
+									"description": "Event ID to delete"
+								}
+							]
+						},
+						"description": "Delete an event (organizer only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Invite User to Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 or 201\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event_id\": 5,\n  \"email\": \"Menna@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/events/invite",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"invite"
+							]
+						},
+						"description": "Invite a user to an event by their email (organizer only)"
+					},
+					"response": []
+				}
+			],
+			"description": "Event management endpoints for CRUD operations"
+		},
+		{
+			"name": "RSVP & Attendees",
+			"item": [
+				{
+					"name": "RSVP to Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"event_id\": 5,\n  \"status\": \"not_going\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/events/response",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"response"
+							]
+						},
+						"description": "Update RSVP status for an event. Status values: 'accepted', 'maybe', 'declined'"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Event Attendees",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/5/attendees",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"5",
+								"attendees"
+							]
+						},
+						"description": "Get list of all attendees and their RSVP status for an event (organizer only)"
+					},
+					"response": []
+				}
+			],
+			"description": "RSVP and attendee management endpoints"
+		},
+		{
+			"name": "Search & Filter",
+			"item": [
+				{
+					"name": "Search by Keyword Only",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/search?keyword=tech",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"search"
+							],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "tech",
+									"description": "Search keyword"
+								}
+							]
+						},
+						"description": "Search events by keyword only"
+					},
+					"response": []
+				},
+				{
+					"name": "Search by Date Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/search??date=2025-12-25",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"search"
+							],
+							"query": [
+								{
+									"key": "?date",
+									"value": "2025-12-25"
+								}
+							]
+						},
+						"description": "Filter events by date range"
+					},
+					"response": []
+				},
+				{
+					"name": "Search by Role (Organizer)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/search?role=organizer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"search"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "organizer",
+									"description": "organizer or attendee"
+								}
+							]
+						},
+						"description": "Filter events where user is organizer"
+					},
+					"response": []
+				},
+				{
+					"name": "Search by Role (Attendee)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/search?role=attendee",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"search"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "attendee",
+									"description": "organizer or attendee"
+								}
+							]
+						},
+						"description": "Filter events where user is organizer"
+					},
+					"response": []
+				},
+				{
+					"name": "Search by Role & Status (Attendee)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/events/search?role=attendee&status=not_going",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"events",
+								"search"
+							],
+							"query": [
+								{
+									"key": "role",
+									"value": "attendee"
+								},
+								{
+									"key": "status",
+									"value": "not_going",
+									"description": "going, maybe, or not_going"
+								}
+							]
+						},
+						"description": "Filter events where user is attendee with specific RSVP status"
+					},
+					"response": []
+				}
+			],
+			"description": "Advanced search and filtering endpoints for events"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		}
+	]
 }
