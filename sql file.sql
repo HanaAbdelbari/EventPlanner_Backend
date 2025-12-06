@@ -1,5 +1,5 @@
 -- Create database
-CREATE DATABASE eventplanner_db;
+CREATE DATABASE eventplanner;
 
 -- Update status values to match new requirements
 UPDATE event_attendees
@@ -18,6 +18,6 @@ GRANT ALL PRIVILEGES ON eventplanner.* TO 'appuser'@'localhost';
 FLUSH PRIVILEGES;
 
 -- Use database
-USE eventplanner_db;
+USE eventplanner;
 
 -- Create users table (GORM will auto-migrate later)

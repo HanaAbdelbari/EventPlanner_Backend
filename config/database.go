@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joho/godotenv"
+	"EventPlanner_Backend/models"
+	//"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"EventPlanner_Backend/models"
 )
 
 var DB *gorm.DB
 
 func ConnectDB() {
-	godotenv.Load()
+	//In Docker, we pass environment variables directly
+
+	//godotenv.Load()
 
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -25,11 +27,12 @@ func ConnectDB() {
 	)
 
 	var err error
+
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database: " + err.Error())
 	}
 
-    DB.AutoMigrate(&models.User{}, &models.Event{})
+	DB.AutoMigrate(&models.User{}, &models.Event{})
 	fmt.Println("Database connected & migrated!")
 }

@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: eventplanner-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: basmala.12347890
+      MYSQL_DATABASE: eventplanner
+    volumes:
+      - eventplanner-db-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - backend-net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pbasmala.12347890" ]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 120s
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eventplanner-backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: basmala.12347890
+      DB_NAME: eventplanner
+      JWT_SECRET: supersecretkey2025
+      PORT: 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend-net
+      - frontend-net
+
+  frontend:
+    build:
+      context: ../EventPlanner_Fronetend
+      dockerfile: Dockerfile
+    container_name: eventplanner-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - frontend-net
+
+networks:
+  backend-net:
+    driver: bridge
+  frontend-net:
+    driver: bridge
+
+volumes:
+  eventplanner-db-data:
+    driver: local
