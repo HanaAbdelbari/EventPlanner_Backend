@@ -20,18 +20,13 @@ func SetupRouter() *gin.Engine {
 // 	}))
 
     r.Use(cors.New(cors.Config{
-        AllowOriginFunc: func(origin string) bool {
-            // Allow all origins
-            return true
+        AllowOrigins: []string{
+            "https://eventplanner-frontend-crt-20226122-dev.apps.rm3.7wse.p1.openshiftapps.com",
         },
-        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
-        ExposeHeaders:    []string{"Content-Length"},
+        AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowHeaders: []string{"Origin", "Content-Type", "Authorization"},
         AllowCredentials: true,
     }))
-
-
-
 
 	// Health check
 	r.GET("/health", func(c *gin.Context) {
