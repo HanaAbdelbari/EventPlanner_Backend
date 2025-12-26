@@ -11,13 +11,23 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost", "*"}, //For openshift
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-	}))
+// 	r.Use(cors.New(cors.Config{
+// 		AllowOrigins:     []string{"http://localhost:5173", "http://localhost", "*"}, //For openshift
+// 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+// 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
+// 		ExposeHeaders:    []string{"Content-Length"},
+// 		AllowCredentials: true,
+// 	}))
+
+    r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://eventplanner-frontend-crt-20226122-dev.apps.rm3.7wse.p1.openshiftapps.com"},
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+    }))
+
+
 
 	// Health check
 	r.GET("/health", func(c *gin.Context) {
